@@ -1,0 +1,166 @@
+{
+  "name": "HV Capital",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "18483005-7526-41b9-9564-d2f332425296",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://newsapi.org/v2/everything?q=AI%20startup&language=en&sortBy=publishedAt&apiKey=d764b058a19444468786b1a425a25769",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "AI startup"
+            },
+            {
+              "name": "from",
+              "value": "={{$node[\"Calc Yesterday\"].json.start}}"
+            },
+            {
+              "name": "to",
+              "value": "={{$node[\"Calc Yesterday\"].json.end}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "73ce6689-c8d0-41bd-92c0-403ab2c105ac",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const arts = (items[0].json.articles || [])\n  // keep unique links and with titles\n  .filter((a) => a?.url && a?.title);\n\nconst lines = arts.map((a) => {\n  const when = new Date(a.publishedAt).toLocaleString('en-GB', {\n    year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit'\n  });\n  const src = a.source?.name ? ` — ${a.source.name}` : '';\n  // Slack link formatting: <url|text>\n  return `• <${a.url}|${a.title}> (${when})${src}`;\n});\n\nreturn [{ json: { text: lines.join('\\n') || 'No fresh AI-startup headlines today.' } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "fcce8c51-82d3-4f3b-b690-cacead6d44bc",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C099AMT99PZ",
+          "mode": "list",
+          "cachedResultName": "all-test"
+        },
+        "text": "=📰 *Latest AI Startup News:* {{ $json[\"text\"] }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        0
+      ],
+      "id": "de0119bf-0e17-46e2-bcd1-4fddd396e865",
+      "name": "Send a message",
+      "webhookId": "e185dab3-ff34-49b8-91a2-af3e3fedd467",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "x6cUboAXVxMXibIG",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = new Date();\nd.setDate(d.getDate() - 1);\nconst start = new Date(d.setHours(0, 0, 0, 0)).toISOString();\nconst end = new Date(d.setHours(23, 59, 59, 999)).toISOString();\nreturn [{ json: { start, end } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "36b59273-91bb-41b9-9a45-82713f8231c7",
+      "name": "Calc Yesterday"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Calc Yesterday",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc Yesterday": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "045be1ef-b070-48f5-a945-786c0b8ce6ef",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de9010cdc66b54c46941d5b8069ab76275a1eed4fb57b1fe2295059971d02ec6"
+  },
+  "id": "BirFNn23ryjzjgMz",
+  "tags": []
+}
