@@ -1,115 +1,55 @@
-Got it — here’s a **clear, professional README** for your workflow using **NewsAPI** to pull AI startup news and send it to Slack (or similar), instead of using Crunchbase.
+# AI Startup News to Slack - n8n Workflow
 
----
+An n8n workflow export that collects recent AI startup headlines from NewsAPI, formats the results, and sends a daily summary to Slack.
 
-# 📰 AI Startup News Automation
+## Workflow
 
-## Overview
+1. A schedule trigger starts the workflow.
+2. A code node calculates the previous day's date range.
+3. An HTTP Request node fetches matching NewsAPI articles.
+4. A code node formats article titles, sources, dates, and links.
+5. A Slack node posts the summary to a configured channel.
 
-This workflow automatically retrieves the **latest news headlines** related to AI startups from **NewsAPI** and sends them to a Slack channel on a daily schedule.
+## Requirements
 
-It is designed as a lightweight, cost-effective alternative to Crunchbase for news monitoring — optimized for speed, real-time relevance, and ease of integration.
+- An n8n instance
+- A NewsAPI account
+- A Slack credential configured in n8n
 
----
+## Import into n8n
 
-## Why NewsAPI?
+1. Open n8n and create a new workflow.
+2. Select **Import from File**.
+3. Import `HV_Capital_Kokorev.json`.
+4. Replace the NewsAPI credential configuration with your own.
+5. Select your own Slack credential and destination channel.
+6. Run the workflow manually before enabling its schedule.
 
-While **Crunchbase** offers excellent company and funding data, it requires a paid subscription and focuses on structured business profiles rather than real-time news.
-**NewsAPI** was chosen because it:
+## Environment variables
 
-* ✅ Provides a **free tier** for development and testing
-* ✅ Delivers **fresh, real-time news** from thousands of sources worldwide
-* ✅ Has a **simple REST API** and quick integration
-* ✅ Supports **keyword-based search** (e.g., "AI startups") and multiple languages
-* ✅ Allows rapid implementation for time-sensitive automation
+When adapting the workflow to use environment-backed credentials, use placeholders such as:
 
----
-
-## Features
-
-* Pulls **latest AI startup news** daily
-* Filters results by:
-
-  * Keyword (`"AI startup"`, `"artificial intelligence"`)
-  * Language (e.g., English)
-  * Date range (last 24 hours)
-* Sends formatted headlines with source and URL to a Slack channel
-* Lightweight and runs on any server or automation platform
-
----
-
-## Prerequisites
-
-1. **NewsAPI Account** — Sign up at [https://newsapi.org](https://newsapi.org) and get your API key.
-2. **Slack Incoming Webhook** — Create one in your Slack workspace to post messages.
-3. **Python 3.8+** installed.
-4. (Optional) n8n, Zapier, or cron for scheduling.
-
----
-
-## Environment Variables
-
-Create a `.env` file or set these variables in your hosting environment:
-
-```
-NEWSAPI_KEY=your_newsapi_key_here
-SLACK_WEBHOOK_URL=your_slack_webhook_here
+```env
+NEWSAPI_KEY=replace-with-your-newsapi-key
+SLACK_WEBHOOK_URL=replace-with-your-slack-webhook-url
 ```
 
----
+Do not commit real API keys, webhook URLs, or exported credentials.
 
-## Installation & Usage
+## Validation
 
-```bash
-# Clone the repo
-git clone https://github.com/yourusername/ai-startup-news-bot.git
-cd ai-startup-news-bot
+- Execute each node manually and inspect its output.
+- Confirm the HTTP Request node returns an `articles` array.
+- Confirm the formatting node handles an empty result.
+- Send a test message to a non-production Slack channel.
 
-# Install dependencies
-pip install -r requirements.txt
+## Limitations
 
-# Run the script manually
-python news_to_slack.py
-```
+- The workflow is an n8n export, not a standalone Python application.
+- Article relevance depends on the configured NewsAPI query.
+- Deduplication is limited to the articles returned in one execution.
+- Credentials and destination settings must be reviewed after import.
 
----
+## Status
 
-## Example Output in Slack
-
-```
-🚀 AI Startup News Update — 2025-08-09
-1. "New AI startup raises $10M to revolutionize healthcare" — TechCrunch
-   https://techcrunch.com/article/ai-startup-healthcare
-2. "AI-based logistics startup expands to Europe" — VentureBeat
-   https://venturebeat.com/article/ai-logistics-europe
-```
-
----
-
-## Scheduling
-
-You can run this script automatically:
-
-* **Cron job** (Linux/macOS)
-* **Windows Task Scheduler**
-* **n8n** or **Zapier** for no-code scheduling
-* **GitHub Actions** for cloud execution
-
-Example cron (run at 9 AM daily):
-
-```bash
-0 9 * * * /usr/bin/python3 /path/to/news_to_slack.py
-```
-
----
-
-## Future Enhancements
-
-* Support for multiple keywords or topics
-* HTML-rich formatting in Slack
-* Deduplication of articles
-* AI-powered sentiment tagging
-
----
-
-If you want, I can also make you a **short README variant** focused on your **Telegram bot workflow** with the same API integration so it’s consistent across your projects. Want me to prepare that?
+Small automation workflow created as a practical integration exercise. Review the exported workflow configuration before public reuse.
